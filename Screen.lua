@@ -1,46 +1,41 @@
 Screen = {}
 
-function Screen:new (state)
-  local o = { state = state }
+function Screen:new (width, height)
+  assert(type(width) == "number")
+  assert(type(height) == "number")
+  local o = { components = {}, width=width, height=height }
   self.__index = self
   setmetatable(o, self)
   return o
 end
 
--- 0 represents blank, 1 represents X, and -1 represents O
-function Screen:print ()
-  local n = #self.state -- used in evaluating the order of any slot according to its row and column indexes
-  local hold_padding = " " -- used for styling purposes; it's a horizontal-padding for slots that holds values or X or O
-  local empty_padding = "-" -- alike hold_padding but for empty slots
-  print()
-  for row_index, row in ipairs(self.state) do
-    for col_index, col in ipairs(row) do
-      if (col == 0) then
-        local index = n * (row_index - 1) + col_index
-        local str = index <= 9 and "0" .. tostring(index) or tostring(index)
-        io.write(empty_padding .. str .. empty_padding)
-      elseif col == 1 then
-        io.write(hold_padding .. " X" .. hold_padding)
-      elseif col == -1 then
-        io.write(hold_padding .. " O" .. hold_padding)
-      end
-      if col_index % n == 0 then
-        io.write("\n")
-      else
-        io.write("|")
-      end
-    end
-    if row_index == n then break end
-    for col_index in ipairs(row) do
-      for _ = 1, 2 * (string.len(empty_padding) + 1), 1 do
-        io.write(empty_padding)
-      end
-      if col_index % n == 0 then
-        io.write("\n")
-      else
-        io.write("|")
-      end
-    end
-  end
-  print()
+function Screen:mousereleased (x, y, button)
+  for _, v in pairs(self.components) do if v.load then v:mousereleased(x, y, button) end end
+end
+
+function Screen:load ()
+  for _, v in pairs(self.components) do if v.load then v:load() end end
+end
+
+function Screen:update ()
+  for _, v in pairs(self.components) do if v.update then v:update() end end
+end
+
+function Screen:draw ()
+  for _, v in pairs(self.components) do v:draw() end
+end
+
+function Screen:addComponent (id, drawable)
+  self.components[id] = drawable
+  return drawable
+end
+
+function Screen:getComponenet (id)
+  assert(self.components[id])
+  return self.components[id]
+end
+
+function Screen:rmvComponent (id)
+  if not self.components[id] then error("Screen: no drawable found with the id: " .. id) end
+  self.components[id] = nil
 end

@@ -1,3 +1,4 @@
+-- 0 represents blank, 1 represents X, and -1 represents O
 GameState = {}
 
 function GameState:new (n)
@@ -44,7 +45,10 @@ function GameState:isOver ()
   return true
 end
 
+local memo_winner = 0
 function GameState:getWinner ()
+  if memo_winner ~= 0 then return memo_winner end
+  if not _G["state_changed"] then return 0 end
   local state = self.cur
   local n = #state
   local w = n > 5 and 5 or math.ceil(4/5 * 5) -- winning threshold value
@@ -100,4 +104,33 @@ function GameState:getWinner ()
 
   -- otherwise return 0 indicating that no winners yet
   return 0
+end
+
+function GameState:toString ()
+  local res = ""
+  local n = #self.cur -- used in evaluating the order of any slot according to its row and column indexes
+  local hold_padding = "  "
+  local empty_padding = "--"
+  for row_index, row in ipairs(self.cur) do
+    for col_index, col in ipairs(row) do
+      if (col == 0) then
+        local index = n * (row_index - 1) + col_index
+        local str = index <= 9 and "0" .. tostring(index) or tostring(index)
+        res = res .. (empty_padding .. str .. empty_padding)
+      elseif col == 1 then
+        res = res .. (hold_padding .. " X" .. hold_padding)
+      elseif col == -1 then
+        res = res .. (hold_padding .. " O" .. hold_padding)
+      end
+      if col_index % n == 0 then res = res .. "\n" else res = res .. "|" end
+    end
+    if row_index == n then break end
+    for col_index in ipairs(row) do
+      for _ = 1, 2 * string.len(empty_padding), 1 do
+        res = res .. empty_padding
+      end
+      if col_index % n == 0 then res = res .. "\n" else res = res .. "|" end
+    end
+  end
+  return res
 end

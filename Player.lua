@@ -7,12 +7,8 @@ function Player:new (name)
   return o
 end
 
-function Player:chooseSlot (n)
-  io.write(self.getName() .. "'s turn: ")
-  local slot = tonumber(io.read())
-  if not slot or slot < 1 or slot > n*n then
-    print("Invalid input: write number from 1 to " .. n*n)
-    return Player:chooseSlot(n)
-  end
+function Player:chooseSlot ()
+  local slot = tonumber(_G["selected_slot"])
+  _G["selected_slot"] = nil
   return slot
 end

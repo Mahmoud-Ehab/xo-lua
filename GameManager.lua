@@ -3,15 +3,17 @@ require "Player"
 require "GameState"
 
 GameManager = {}
+local playerInTurn
 
 function GameManager:new (n)
   local o = {}
   o.State = GameState:new(n or 3)
-  o.Screen = Screen:new(o.State.cur)
+  o.Screen = Screen:new(480, 600)
   o.Players = {
     Player:new("X"),
     Player:new("O")
   }
+  playerInTurn = o.Players[1]
   self.__index = self
   setmetatable(o, self)
   return o
@@ -21,30 +23,16 @@ function GameManager:reset (n)
   self.State = GameState:new(n)
 end
 
-function GameManager:start ()
-  local winner
-  self.Screen:print()
-  while not self.State:isOver() do
-    for _, player in ipairs(self.Players) do
-      winner = self.State:getWinner()
-      if winner ~= 0 then break end
-      self:action(player)
-    end
-    if winner ~= 0 then break end
-  end
-  if winner == 1 then
-    print("Gameover: X won!")
-  elseif winner == -1 then
-    print("Gameover: O won!")
-  else
-    print("Gameover: it's draw.")
-  end
+function GameManager:update ()
+  _G["status"] = playerInTurn.getName() .. " player turn."
+  self:action(playerInTurn)
 end
 
 function GameManager:action (player)
   local state = self.State.cur
   local n = #state
-  local slot = player:chooseSlot(n)
+  local slot = player:chooseSlot()
+  if not slot then return false end
 
   local row = math.ceil(slot/n)
   local col = ((slot-1)%n)+1
@@ -55,5 +43,9 @@ function GameManager:action (player)
   end
 
   state[row][col] = player.getName() == "X" and 1 or -1
-  self.Screen:print()
+  for _, v in ipairs(self.Players) do
+    if v ~= playerInTurn then playerInTurn = v; break end
+  end
+  _G["state_changed"] = true -- to inform changes to GameState:getWinner method
+  return true
 end
