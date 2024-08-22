@@ -96,14 +96,15 @@ function GameState:getWinner ()
       if (botDiagSum == w or botDiagSum == -w) then return botDiagSum / w end
       if i == 1 then goto continue end
       -- check top diagonals
-      absDiff = math.abs(topDiagSum + state[i+k-2][n-k]) - math.abs(topDiagSum)
-      topDiagSum = absDiff < 1 and state[i+k-2][n-k] or topDiagSum + state[i+k-2][n-k]
+      absDiff = math.abs(topDiagSum + state[k][n-k-i+2]) - math.abs(topDiagSum)
+      topDiagSum = absDiff < 1 and state[k][n-k-i+2] or topDiagSum + state[k][n-k-i+2]
       if (topDiagSum == w or topDiagSum == -w) then return topDiagSum / w end
     end
       ::continue::
   end
 
   -- otherwise return 0 indicating that no winners yet
+  _G["state_changed"] = false -- to save computations for next (love.update) loops
   return 0
 end
 
