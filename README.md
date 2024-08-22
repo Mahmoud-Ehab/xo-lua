@@ -1,6 +1,8 @@
 A general tic-tac-toe game with an AI agent developed in lua.
 
-Start the game by executing main.lua file:
+You can try out the game on any platform with [love](https://love2d.org/) command:
 ```SHELL
-$ lua main.lua
+$ love .
 ```
+
+> Download and install love2d from the official website: [https://love2d.org/](https://love2d.org/)
