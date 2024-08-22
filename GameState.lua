@@ -51,8 +51,7 @@ function GameState:getWinner ()
   if not _G["state_changed"] then return 0 end
   local state = self.cur
   local n = #state
-  local w = n > 5 and 5 or math.ceil(4/5 * 5) -- winning threshold value
-  w = n < w and n or w
+  local w = n > 5 and 5 or 3 -- winning threshold value
 
   -- check for rows and columns
   for row_index, row in ipairs(state) do
@@ -65,7 +64,7 @@ function GameState:getWinner ()
     local colSum = 0
     for i = 1, n, 1 do
       local absDiff = math.abs(colSum + state[i][row_index]) - math.abs(colSum)
-      colSum = absDiff < 1 and row[i] or colSum + state[i][row_index]
+      colSum = absDiff < 1 and state[i][row_index] or colSum + state[i][row_index]
       if (colSum == w or colSum == -w) then return colSum / w end
     end
   end
@@ -75,11 +74,11 @@ function GameState:getWinner ()
   local botDiagSum = 0
   for i = 1, n-w+1, 1 do
     for k = 1, n-i+1, 1 do
-      -- check bottom diagonals
+      -- check top diagonals
       local absDiff = math.abs(topDiagSum + state[i+k-1][k]) - math.abs(topDiagSum)
       topDiagSum = absDiff < 1 and state[i+k-1][k] or topDiagSum + state[i+k-1][k]
       if (topDiagSum == w or topDiagSum == -w) then return topDiagSum / w end
-      -- check top diagonals
+      -- check bottom diagonals
       absDiff = math.abs(botDiagSum + state[k][i+k-1]) - math.abs(botDiagSum)
       botDiagSum = absDiff < 1 and state[k][i+k-1] or botDiagSum + state[k][i+k-1]
       if (botDiagSum == w or botDiagSum == -w) then return botDiagSum / w end
@@ -92,14 +91,16 @@ function GameState:getWinner ()
   for i = 1, n-w+1, 1 do
     for k = 1, n-i+1, 1 do
       -- check bottom diagonals
-      local absDiff = math.abs(topDiagSum + state[i+k-1][n-k+1]) - math.abs(topDiagSum)
-      topDiagSum = absDiff < 1 and state[i+k-1][n-k+1] or topDiagSum + state[i+k-1][n-k+1]
-      if (topDiagSum == w or topDiagSum == -w) then return topDiagSum / w end
-      -- check top diagonals
-      absDiff = math.abs(botDiagSum + state[n-k+1][i+k-1]) - math.abs(botDiagSum)
-      botDiagSum = absDiff < 1 and state[n-k+1][i+k-1] or botDiagSum + state[n-k+1][i+k-1]
+      local absDiff = math.abs(botDiagSum + state[i+k-1][n-k+1]) - math.abs(botDiagSum)
+      botDiagSum = absDiff < 1 and state[i+k-1][n-k+1] or botDiagSum + state[i+k-1][n-k+1]
       if (botDiagSum == w or botDiagSum == -w) then return botDiagSum / w end
+      if i == 1 then goto continue end
+      -- check top diagonals
+      absDiff = math.abs(topDiagSum + state[i+k-2][n-k]) - math.abs(topDiagSum)
+      topDiagSum = absDiff < 1 and state[i+k-2][n-k] or topDiagSum + state[i+k-2][n-k]
+      if (topDiagSum == w or topDiagSum == -w) then return topDiagSum / w end
     end
+      ::continue::
   end
 
   -- otherwise return 0 indicating that no winners yet
@@ -118,15 +119,15 @@ function GameState:toString ()
         local str = index <= 9 and "0" .. tostring(index) or tostring(index)
         res = res .. (empty_padding .. str .. empty_padding)
       elseif col == 1 then
-        res = res .. (hold_padding .. " X" .. hold_padding)
+        res = res .. (hold_padding .. "X" .. hold_padding)
       elseif col == -1 then
-        res = res .. (hold_padding .. " O" .. hold_padding)
+        res = res .. (hold_padding .. "O" .. hold_padding)
       end
       if col_index % n == 0 then res = res .. "\n" else res = res .. "|" end
     end
     if row_index == n then break end
     for col_index in ipairs(row) do
-      for _ = 1, 2 * string.len(empty_padding), 1 do
+      for _ = 1, 1 + string.len(empty_padding), 1 do
         res = res .. empty_padding
       end
       if col_index % n == 0 then res = res .. "\n" else res = res .. "|" end
