@@ -22,6 +22,8 @@ function Screen:update ()
 end
 
 function Screen:draw ()
+  local r, g, b = love.math.colorFromBytes(248, 237, 227)
+  love.graphics.setBackgroundColor(r, g, b)
   for _, v in pairs(self.components) do v:draw() end
 end
 

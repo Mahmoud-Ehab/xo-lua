@@ -1,4 +1,4 @@
-require "Screen"
+require "drawables.Screen"
 require "Player"
 require "GameState"
 
