@@ -55,23 +55,32 @@ function GameState:getWinner ()
 end
 
 -- checks the state and returns 1, -1, or 0 if X wins, O wins, or noone.
+local checked = {}
 function GameState.check (state)
-  local n = #state
-  local w = n > 5 and 5 or 3 -- winning threshold value
+  local state_key = GameState.genKey(state)
+  if checked[state_key] then return checked[state_key] end
 
+  local n = #state
+  local w = n > 5 and 5 or n -- winning threshold value
   -- check for rows and columns
   for row_index, row in ipairs(state) do
     local rowSum = 0
     for i = 1, n, 1 do
       local absDiff = math.abs(rowSum + row[i]) - math.abs(rowSum)
       rowSum = absDiff < 1 and row[i] or rowSum + row[i]
-      if (rowSum == w or rowSum == -w ) then return rowSum / w end
+      if (rowSum == w or rowSum == -w ) then
+        checked[state_key] = rowSum/w
+        return rowSum/w
+      end
     end
     local colSum = 0
     for i = 1, n, 1 do
       local absDiff = math.abs(colSum + state[i][row_index]) - math.abs(colSum)
       colSum = absDiff < 1 and state[i][row_index] or colSum + state[i][row_index]
-      if (colSum == w or colSum == -w) then return colSum / w end
+      if (colSum == w or colSum == -w) then
+        checked[state_key] = colSum/w
+        return colSum/w
+      end
     end
   end
 
@@ -83,11 +92,17 @@ function GameState.check (state)
       -- check top diagonals
       local absDiff = math.abs(topDiagSum + state[i+k-1][k]) - math.abs(topDiagSum)
       topDiagSum = absDiff < 1 and state[i+k-1][k] or topDiagSum + state[i+k-1][k]
-      if (topDiagSum == w or topDiagSum == -w) then return topDiagSum / w end
+      if (topDiagSum == w or topDiagSum == -w) then
+        checked[state_key] = topDiagSum/w
+        return topDiagSum/w
+      end
       -- check bottom diagonals
       absDiff = math.abs(botDiagSum + state[k][i+k-1]) - math.abs(botDiagSum)
       botDiagSum = absDiff < 1 and state[k][i+k-1] or botDiagSum + state[k][i+k-1]
-      if (botDiagSum == w or botDiagSum == -w) then return botDiagSum / w end
+      if (botDiagSum == w or botDiagSum == -w) then
+        checked[state_key] = botDiagSum/w
+        return botDiagSum/w
+      end
     end
   end
 
@@ -99,45 +114,41 @@ function GameState.check (state)
       -- check bottom diagonals
       local absDiff = math.abs(botDiagSum + state[i+k-1][n-k+1]) - math.abs(botDiagSum)
       botDiagSum = absDiff < 1 and state[i+k-1][n-k+1] or botDiagSum + state[i+k-1][n-k+1]
-      if (botDiagSum == w or botDiagSum == -w) then return botDiagSum / w end
+      if (botDiagSum == w or botDiagSum == -w) then
+        checked[state_key] = botDiagSum/w
+        return botDiagSum/w
+      end
       if i == 1 then goto continue end
       -- check top diagonals
       absDiff = math.abs(topDiagSum + state[k][n-k-i+2]) - math.abs(topDiagSum)
       topDiagSum = absDiff < 1 and state[k][n-k-i+2] or topDiagSum + state[k][n-k-i+2]
-      if (topDiagSum == w or topDiagSum == -w) then return topDiagSum / w end
+      if (topDiagSum == w or topDiagSum == -w) then
+        checked[state_key] = topDiagSum/w
+        return topDiagSum/w
+      end
       ::continue::
     end
   end
 
   -- otherwise return 0 indicating that no winners yet
+  checked[state_key] = 0
   return 0
 end
 
-function GameState:toString ()
-  local res = ""
-  local n = #self.cur -- used in evaluating the order of any slot according to its row and column indexes
-  local hold_padding = "  "
-  local empty_padding = "--"
-  for row_index, row in ipairs(self.cur) do
-    for col_index, col in ipairs(row) do
-      if (col == 0) then
-        local index = n * (row_index - 1) + col_index
-        local str = index <= 9 and "0" .. tostring(index) or tostring(index)
-        res = res .. (empty_padding .. str .. empty_padding)
-      elseif col == 1 then
-        res = res .. (hold_padding .. "X" .. hold_padding)
-      elseif col == -1 then
-        res = res .. (hold_padding .. "O" .. hold_padding)
+function GameState.genKey(state)
+  local key = ""
+  local lastseen = 0
+  local count = 1
+  for _, row in ipairs(state) do
+    for _, slot in ipairs(row) do
+      if lastseen ~= slot then
+        key = string.format("%s(%d)%d", key, count, lastseen)
+        lastseen = slot
+        count = 1
+      else
+        count = count + 1
       end
-      if col_index % n == 0 then res = res .. "\n" else res = res .. "|" end
-    end
-    if row_index == n then break end
-    for col_index in ipairs(row) do
-      for _ = 1, 1 + string.len(empty_padding), 1 do
-        res = res .. empty_padding
-      end
-      if col_index % n == 0 then res = res .. "\n" else res = res .. "|" end
     end
   end
-  return res
+  return key
 end

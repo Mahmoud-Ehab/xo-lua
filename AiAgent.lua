@@ -10,16 +10,25 @@
 
 require "Player"
 
-AiAgent = Player:new()
-
 -- this table maps each state to it's corresponding pre-computed weight
 -- each state represented (as a key) by a string of its slots values
--- for example: "0,0,0,0,0,0,0,0,0" represents the state of empty 3*3 board matrix
+-- for example: "(9)0" represents the state of empty 3*3 board matrix
 -- it highly enhances performance
 local weights = {}
 local maxint = 9999999999
 
+AiAgent = {}
+
+function AiAgent:new(name, power)
+  local o = Player:new(name)
+  o.power = power or 10
+  self.__index = self
+  setmetatable(o, self)
+  return o
+end
+
 function AiAgent:chooseSlot(GameState)
+  self.genKey = GameState.genKey
   local pactions = self:getActionsOf(GameState.cur)
   local rstates = {}
   for _, action in ipairs(pactions) do
@@ -31,28 +40,33 @@ function AiAgent:chooseSlot(GameState)
   for i, state in ipairs(rstates) do
     -- pactions.ivalue here specifies if the ai is playing as X or O
     local w = self:getWeightOf(state, GameState.check) * pactions.ivalue
+    print(i, w, max_weight)
     if w > max_weight then
       max_weight = w
       picked_index = i
     end
   end
+  print("picked: ", picked_index)
+  print("action: ", pactions[picked_index])
   return pactions[picked_index]
 end
 
 function AiAgent:getWeightOf(state, checkfunc, depth)
   if not depth then depth = 1 end
-  local state_key = self:genKey(state)
+  if depth >= self.power then return 0 end
+
+  local state_key = self.genKey(state)
   if weights[state_key] then return weights[state_key] end
 
   local bstate_check = checkfunc(state)
   if bstate_check ~= 0 then
-    weights[state_key] = bstate_check
+    weights[state_key] = bstate_check / depth
     return weights[state_key]
   end
 
   local pactions = self:getActionsOf(state)
   if #pactions == 0 then
-    weights[state_key] = bstate_check
+    weights[state_key] = bstate_check / depth
     return weights[state_key]
   end
 
@@ -110,11 +124,3 @@ function AiAgent:cloneState(state)
   return clone
 end
 
-function AiAgent:genKey(state)
-  local key = ""
-  for _, row in ipairs(state) do
-    if key ~= "" then key = key .. "," end
-    key = key .. table.concat(row, ",")
-  end
-  return key
-end
