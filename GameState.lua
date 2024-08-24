@@ -76,9 +76,9 @@ function GameState.check (state)
   end
 
   -- check for main diagonals
-  local topDiagSum = 0
-  local botDiagSum = 0
   for i = 1, n-w+1, 1 do
+    local topDiagSum = 0
+    local botDiagSum = 0
     for k = 1, n-i+1, 1 do
       -- check top diagonals
       local absDiff = math.abs(topDiagSum + state[i+k-1][k]) - math.abs(topDiagSum)
@@ -92,9 +92,9 @@ function GameState.check (state)
   end
 
   -- check for antidiagonals
-  topDiagSum = 0
-  botDiagSum = 0
   for i = 1, n-w+1, 1 do
+    local topDiagSum = 0
+    local botDiagSum = 0
     for k = 1, n-i+1, 1 do
       -- check bottom diagonals
       local absDiff = math.abs(botDiagSum + state[i+k-1][n-k+1]) - math.abs(botDiagSum)
