@@ -1,9 +1,7 @@
 Screen = {}
 
-function Screen:new (width, height)
-  assert(type(width) == "number")
-  assert(type(height) == "number")
-  local o = { components = {}, width=width, height=height }
+function Screen:new ()
+  local o = { components = {} }
   self.__index = self
   setmetatable(o, self)
   return o
@@ -32,7 +30,7 @@ function Screen:addComponent (id, drawable)
   return drawable
 end
 
-function Screen:getComponenet (id)
+function Screen:getComponent (id)
   assert(self.components[id])
   return self.components[id]
 end

@@ -4,7 +4,7 @@ StateView = {}
 local slots = {}
 
 function StateView:new (state)
-  local o = { state=state, slotlen=love.graphics.getWidth()/(2*#state) }
+  local o = { state=state, slotlen=love.graphics.getWidth()/#state - 10 }
   self.__index = self
   setmetatable(o, self)
   return o
@@ -16,7 +16,7 @@ function StateView:load ()
       local newSlot = Slot:new(self.state, ri, ci, self.slotlen)
       newSlot.position = {
         x = love.graphics.getWidth()/2 + (ri - 1 - #self.state/2) * self.slotlen,
-        y = ci*self.slotlen
+        y = love.graphics.getHeight()/3 + (ci - 1 - #self.state/3) * self.slotlen
       }
       newSlot:load()
       slots[ri .. ',' .. ci] = newSlot

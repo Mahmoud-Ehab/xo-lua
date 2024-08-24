@@ -8,7 +8,7 @@ local playerInTurn
 function GameManager:new (n)
   local o = {}
   o.State = GameState:new(n or 3)
-  o.Screen = Screen:new(480, 600)
+  o.Screen = Screen:new()
   o.Players = {
     Player:new("X"),
     Player:new("O")
@@ -21,6 +21,9 @@ end
 
 function GameManager:reset (n)
   self.State = GameState:new(n)
+  playerInTurn = self.Players[1]
+  _G["status"] = nil
+  _G["status_changed"] = nil
 end
 
 function GameManager:update ()
