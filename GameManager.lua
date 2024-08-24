@@ -1,6 +1,6 @@
-require "drawables.Screen"
-require "Player"
 require "GameState"
+require "Player"
+require "AiAgent"
 
 GameManager = {}
 local playerInTurn
@@ -8,10 +8,9 @@ local playerInTurn
 function GameManager:new (n)
   local o = {}
   o.State = GameState:new(n or 3)
-  o.Screen = Screen:new()
   o.Players = {
     Player:new("X"),
-    Player:new("O")
+    AiAgent:new("O")
   }
   playerInTurn = o.Players[1]
   self.__index = self
@@ -34,7 +33,7 @@ end
 function GameManager:action (player)
   local state = self.State.cur
   local n = #state
-  local slot = player:chooseSlot()
+  local slot = player:chooseSlot(self.State)
   if not slot then return false end
 
   local row = math.ceil(slot/n)

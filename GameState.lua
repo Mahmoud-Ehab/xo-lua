@@ -49,7 +49,13 @@ local memo_winner = 0
 function GameState:getWinner ()
   if memo_winner ~= 0 then return memo_winner end
   if not _G["state_changed"] then return 0 end
-  local state = self.cur
+  local winner = self.check(self.cur)
+  if winner == 0 then _G["state_changed"] = false end -- to save computations for next (love.update) loops
+  return winner
+end
+
+-- checks the state and returns 1, -1, or 0 if X wins, O wins, or noone.
+function GameState.check (state)
   local n = #state
   local w = n > 5 and 5 or 3 -- winning threshold value
 
@@ -99,12 +105,11 @@ function GameState:getWinner ()
       absDiff = math.abs(topDiagSum + state[k][n-k-i+2]) - math.abs(topDiagSum)
       topDiagSum = absDiff < 1 and state[k][n-k-i+2] or topDiagSum + state[k][n-k-i+2]
       if (topDiagSum == w or topDiagSum == -w) then return topDiagSum / w end
-    end
       ::continue::
+    end
   end
 
   -- otherwise return 0 indicating that no winners yet
-  _G["state_changed"] = false -- to save computations for next (love.update) loops
   return 0
 end
 
