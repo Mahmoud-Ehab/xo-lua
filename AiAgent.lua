@@ -40,14 +40,11 @@ function AiAgent:chooseSlot(GameState)
   for i, state in ipairs(rstates) do
     -- pactions.ivalue here specifies if the ai is playing as X or O
     local w = self:getWeightOf(state, GameState.check) * pactions.ivalue
-    print(i, w, max_weight)
     if w > max_weight then
       max_weight = w
       picked_index = i
     end
   end
-  print("picked: ", picked_index)
-  print("action: ", pactions[picked_index])
   return pactions[picked_index]
 end
 
@@ -56,18 +53,18 @@ function AiAgent:getWeightOf(state, checkfunc, depth)
   if depth >= self.power then return 0 end
 
   local state_key = self.genKey(state)
-  if weights[state_key] then return weights[state_key] end
+  if weights[state_key] then return weights[state_key] / depth end
 
   local bstate_check = checkfunc(state)
   if bstate_check ~= 0 then
-    weights[state_key] = bstate_check / depth
-    return weights[state_key]
+    weights[state_key] = bstate_check
+    return bstate_check / depth
   end
 
   local pactions = self:getActionsOf(state)
   if #pactions == 0 then
-    weights[state_key] = bstate_check / depth
-    return weights[state_key]
+    weights[state_key] = bstate_check
+    return bstate_check / depth
   end
 
   local weight = 0
@@ -85,8 +82,8 @@ function AiAgent:getWeightOf(state, checkfunc, depth)
     end
   end
 
-  weights[state_key] = weight / depth
-  return weights[state_key]
+  weights[state_key] = weight
+  return weight / depth
 end
 
 function AiAgent:getActionsOf(state)
