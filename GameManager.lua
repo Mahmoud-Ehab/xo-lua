@@ -9,8 +9,8 @@ function GameManager:new (n)
   local o = {}
   o.State = GameState:new(n or 3)
   o.Players = {
-    Player:new("X"),
-    AiAgent:new("O", 3)
+    Player:new("X player turn."),
+    AiAgent:new("AI thinking...", 3)
   }
   playerInTurn = o.Players[1]
   self.__index = self
@@ -26,7 +26,7 @@ function GameManager:reset (n)
 end
 
 function GameManager:update ()
-  _G["status"] = playerInTurn.getName() .. " player turn."
+  _G["status"] = playerInTurn.getName()
   self:action(playerInTurn)
 end
 
@@ -44,7 +44,7 @@ function GameManager:action (player)
     return false
   end
 
-  state[row][col] = player.getName() == "X" and 1 or -1
+  state[row][col] = string.find(player.getName(), "X") and 1 or -1
   for _, v in ipairs(self.Players) do
     if v ~= playerInTurn then playerInTurn = v; break end
   end

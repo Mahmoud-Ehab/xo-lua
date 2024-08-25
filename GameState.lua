@@ -57,7 +57,7 @@ end
 -- checks the state and returns 1, -1, or 0 if X wins, O wins, or noone.
 local checked = {}
 function GameState.check (state)
-  local state_key = GameState.genKey(state)
+  local state_key = GenKey(state)
   if checked[state_key] then return checked[state_key] end
 
   local n = #state
@@ -135,7 +135,7 @@ function GameState.check (state)
   return 0
 end
 
-function GameState.genKey(state)
+function GenKey(state)
   local key = ""
   local lastseen = nil
   local count = 0
@@ -154,3 +154,5 @@ function GameState.genKey(state)
   key = string.format("%s(%d)%d", key, count, lastseen)
   return key
 end
+
+CheckState = GameState.check
