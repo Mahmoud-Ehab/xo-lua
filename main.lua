@@ -1,9 +1,11 @@
+love = love
+
 require "GameManager"
 require "drawables/StateView"
 require "drawables/TextView"
 require "drawables/Screen"
 
-local game = GameManager:new(8)
+local game = GameManager:new(3)
 local screen = Screen:new()
 
 function love.load()

@@ -1,3 +1,4 @@
+_G["checks"] = {} -- needs to be initialized before importing GameState
 require "GameState"
 require "Player"
 require "AiAgent"
@@ -10,7 +11,7 @@ function GameManager:new (n)
   o.State = GameState:new(n or 3)
   o.Players = {
     Player:new("X player turn."),
-    AiAgent:new("AI thinking...", 3)
+    AiAgent:new("AI thinking...", 4)
   }
   playerInTurn = o.Players[1]
   self.__index = self
