@@ -9,7 +9,7 @@ local function getWeightOf(s, depth)
   if not depth then depth = 1 end
   if depth >= power then return 0 end
 
-  local state_key = GenKey(s)
+  local state_key = s.key
   if weights[state_key] then return weights[state_key] / depth end
 
   local bstate_check = CheckState(s)

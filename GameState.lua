@@ -11,6 +11,7 @@ function GameState:new (n)
     for _ = 1, n, 1 do table.insert(row, 0) end
     table.insert(o.cur, row)
   end
+  o.cur.key = string.format("(%d)0", n)
   self.__index = self
   setmetatable(o, self)
   return o
@@ -20,6 +21,7 @@ function GameState:updateSlot (row, col, val)
   if (not self.cur[row][col] == 0) then
     table.insert(self.prev, self.cloneState(self.cur))
     self.cur[row][col] = val
+    self.cur.key = self.genKey(self.cur)
   else
     error("cannot update a slot more than once", 2)
   end
@@ -33,6 +35,7 @@ function GameState:cloneState (state)
     for c = 1, n, 1 do table.insert(row, state[r][c]) end
     table.insert(clone, row)
   end
+  clone.key = state.key
   return clone
 end
 
@@ -58,7 +61,7 @@ end
 local checked = _G["checks"]
 assert(checked)
 function GameState.check (state)
-  local state_key = GenKey(state)
+  local state_key = state.key
   if checked[state_key] then return checked[state_key] end
 
   local n = #state
@@ -136,7 +139,7 @@ function GameState.check (state)
   return 0
 end
 
-function GenKey(state)
+function GameState.genKey(state)
   local key = ""
   local lastseen = nil
   local count = 0
