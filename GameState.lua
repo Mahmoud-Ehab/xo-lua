@@ -137,10 +137,11 @@ end
 
 function GameState.genKey(state)
   local key = ""
-  local lastseen = 0
-  local count = 1
+  local lastseen = nil
+  local count = 0
   for _, row in ipairs(state) do
     for _, slot in ipairs(row) do
+      if lastseen == nil then lastseen = slot end
       if lastseen ~= slot then
         key = string.format("%s(%d)%d", key, count, lastseen)
         lastseen = slot
@@ -150,5 +151,6 @@ function GameState.genKey(state)
       end
     end
   end
+  key = string.format("%s(%d)%d", key, count, lastseen)
   return key
 end
