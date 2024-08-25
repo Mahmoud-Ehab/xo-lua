@@ -11,14 +11,14 @@ function GameState:new (n)
     for _ = 1, n, 1 do table.insert(row, 0) end
     table.insert(o.cur, row)
   end
-  o.cur.key = string.format("(%d)0", n)
+  o.cur.key = string.format("(%d)0", n^2)
   self.__index = self
   setmetatable(o, self)
   return o
 end
 
 function GameState:updateSlot (row, col, val)
-  if (not self.cur[row][col] == 0) then
+  if (self.cur[row][col] == 0) then
     table.insert(self.prev, self.cloneState(self.cur))
     self.cur[row][col] = val
     self.cur.key = self.genKey(self.cur)
@@ -27,7 +27,7 @@ function GameState:updateSlot (row, col, val)
   end
 end
 
-function GameState:cloneState (state)
+function GameState.cloneState (state)
   local clone = {}
   local n = #state
   for r = 1, n, 1 do
@@ -61,6 +61,7 @@ end
 local checked = _G["checks"]
 assert(checked)
 function GameState.check (state)
+  checked = _G["checks"] -- update checked table
   local state_key = state.key
   if checked[state_key] then return checked[state_key] end
 

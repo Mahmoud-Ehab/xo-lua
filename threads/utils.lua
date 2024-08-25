@@ -1,17 +1,41 @@
 function GetActionsOf(state)
   local n = #state
-  local pactions = {}
+  local played_actions = {}
+  local zi = {} -- zero indexes table
   local x, o = 0, 0
   for r, row in ipairs(state) do
     for c, slot in ipairs(row) do
-      if slot == 0 then table.insert(pactions, n * (r - 1) + c)
-      elseif slot == 1 then x = x + 1
-      elseif slot == -1 then o = o + 1
+      local index = n * (r - 1) + c
+      if slot == 0 then
+        zi[index] = true
+      elseif slot == 1 then
+        x = x + 1
+        table.insert(played_actions, index)
+      elseif slot == -1 then
+        o = o + 1
+        table.insert(played_actions, index)
       end
     end
   end
-  pactions.ivalue = o < x and -1 or 1
-  return pactions
+
+  local pactions = {}
+  for _, action in ipairs(played_actions) do
+    if zi[action-1] then pactions[action-1] = true end
+    if zi[action+1] then pactions[action + 1] = true end
+    if zi[action-n] then pactions[action - n] = true end
+    if zi[action-n-1] then pactions[action - n - 1] = true end
+    if zi[action-n+1] then pactions[action - n + 1] = true end
+    if zi[action+n] then pactions[action + n] = true end
+    if zi[action+n-1] then pactions[action + n - 1] = true end
+    if zi[action+n+1] then pactions[action + n + 1] = true end
+  end
+
+  local list = {}
+  for action in pairs(pactions) do
+    table.insert(list, action)
+  end
+  list.ivalue = o < x and -1 or 1
+  return list
 end
 
 function CloneStateWithAction(state, action, ivalue)
@@ -20,7 +44,7 @@ function CloneStateWithAction(state, action, ivalue)
   local tmp = state[x][y]
   state[x][y] = ivalue
 
-  local clone = {}
+  local clone = { key="" }
   local lastseen = nil
   local count = 0
 

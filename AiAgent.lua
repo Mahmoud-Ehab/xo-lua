@@ -35,7 +35,7 @@ function AiAgent:chooseSlot(GameState)
   end
   local picked_action = love.thread.getChannel("picked_action"):pop()
   if picked_action then
-    weights = love.thread.getChannel("weights"):demand() or weights
+    weights = love.thread.getChannel("weights"):demand()
     _G["checks"] = love.thread.getChannel("checks"):demand()
     started = false
     return picked_action

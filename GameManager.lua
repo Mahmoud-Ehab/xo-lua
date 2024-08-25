@@ -11,7 +11,7 @@ function GameManager:new (n)
   o.State = GameState:new(n or 3)
   o.Players = {
     Player:new("X player turn."),
-    AiAgent:new("AI thinking...", 4)
+    AiAgent:new("AI thinking...", 3)
   }
   playerInTurn = o.Players[1]
   self.__index = self
@@ -45,7 +45,7 @@ function GameManager:action (player)
     return false
   end
 
-  state[row][col] = string.find(player.getName(), "X") and 1 or -1
+  self.State:updateSlot(row, col, string.find(player.getName(), "X") and 1 or -1)
   for _, v in ipairs(self.Players) do
     if v ~= playerInTurn then playerInTurn = v; break end
   end

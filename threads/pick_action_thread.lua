@@ -8,6 +8,10 @@ local threads = {
   love.thread.newThread("threads/get_weight_thread.lua"),
   love.thread.newThread("threads/get_weight_thread.lua"),
   love.thread.newThread("threads/get_weight_thread.lua"),
+  love.thread.newThread("threads/get_weight_thread.lua"),
+  love.thread.newThread("threads/get_weight_thread.lua"),
+  love.thread.newThread("threads/get_weight_thread.lua"),
+  love.thread.newThread("threads/get_weight_thread.lua"),
 }
 
 local function selectThread()
