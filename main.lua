@@ -5,11 +5,12 @@ require "drawables/StateView"
 require "drawables/TextView"
 require "drawables/Screen"
 
-local game = GameManager:new(8)
+local game = GameManager:new(7)
 local screen = Screen:new()
 
 function love.load()
   love.window.setMode(480, 600)
+  love.window.setTitle("xo-lua")
 
   -- Add game board to the screen
   screen:addComponent("state_view", StateView:new(game.State.cur))

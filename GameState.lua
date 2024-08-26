@@ -66,7 +66,7 @@ function GameState.check (state)
   if checked[state_key] then return checked[state_key] end
 
   local n = #state
-  local w = n > 5 and 5 or n -- winning threshold value
+  local w = n > 4 and 4 or n -- winning threshold value
   -- check for rows and columns
   for row_index, row in ipairs(state) do
     local rowSum = 0

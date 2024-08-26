@@ -68,6 +68,11 @@ table.insert(weight_indexes, love.thread.getChannel("weight_index"):pop())
 for i, w in ipairs(eval_weights) do
   -- pactions.ivalue here specifies if the ai is playing as X or O
   w = w * pactions.ivalue
+  -- (esp case) once you find a win (w == 1), jump to it!
+  if w == 1 then
+    picked_index = weight_indexes[i]
+    break
+  end
   if w > max_weight then
     max_weight = w
     picked_index = weight_indexes[i]
