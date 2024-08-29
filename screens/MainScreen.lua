@@ -17,8 +17,8 @@ function MainScreen:new()
   )
   o:addComponent("start_button", StartBtn)
 
-  local SelectN = Select:new("Size:", {3,4,5,6,7,8,9,10}, "_n")
-  local SelectPower = Select:new("Ai Level:", {1,2,3,4,5,6,7,8,9,10}, "_power")
+  local SelectN = Select:new("Size:", {3,4,5,6,7,8,9}, "_n")
+  local SelectPower = Select:new("Ai Level:", {1,2,3,4,5}, "_power")
   local SelectThreads = Select:new("Threads:", {1,2,4,8,16}, "_threads")
   SelectN.y = 0*love.graphics.getHeight()/4 + 50
   SelectPower.y = 1*love.graphics.getHeight()/4 + 50

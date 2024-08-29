@@ -4,7 +4,7 @@ require "GameManager"
 
 _G["_n"] = 3
 _G["_power"] = 3
-_G["_threads"] = 8
+_G["_threads"] = 1
 
 Game = GameManager:new()
 

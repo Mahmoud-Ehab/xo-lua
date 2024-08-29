@@ -40,7 +40,7 @@ function GameManager:reset ()
   self.playerInTurn = self.Players[1]
   _G["status"] = nil
   _G["status_changed"] = nil
-  collectgarbage()
+  collectgarbage("collect")
 end
 
 function GameManager:getState()

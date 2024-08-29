@@ -13,7 +13,7 @@ require "Player"
 -- this table maps each state to it's corresponding pre-computed weight
 -- each state represented (as a key) by a string of its slots values
 -- for example: "(9)0" represents the state of empty 3*3 board matrix
--- it highly enhances performance
+-- it highly promotes performance
 
 AiAgent = {}
 
@@ -38,6 +38,7 @@ function AiAgent:chooseSlot(GameState)
     self.weights = love.thread.getChannel("weights"):demand()
     _G["checks"] = love.thread.getChannel("checks"):demand()
     started = false
+    collectgarbage("collect")
     return picked_action
   end
   return picked_action

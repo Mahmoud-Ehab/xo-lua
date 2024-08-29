@@ -5,24 +5,26 @@ _G["checks"] = checks
 require "GameState"
 require "threads/utils"
 
-local sig = 10 -- arbitrary value used in evaluating weights according to depth 
+local sig = 2 -- arbitrary value used in evaluating weights according to depth 
 
 local function getWeightOf(s, depth)
   if not depth then depth = 0 end
   if depth >= power then return 0 end
 
   local state_key = s.key
-  if weights[state_key] then return weights[state_key] / (sig^depth) end
+  if weights[state_key] and weights[state_key].accuracy > power - depth then
+    return weights[state_key].value / (sig^depth)
+  end
 
   local bstate_check = CheckState(s)
   if bstate_check ~= 0 then
-    weights[state_key] = bstate_check
+    weights[state_key] = { value=bstate_check, accuracy=power - depth }
     return bstate_check / (sig^depth)
   end
 
   local pactions = GetActionsOf(s)
   if #pactions == 0 then
-    weights[state_key] = bstate_check
+    weights[state_key] = { value=bstate_check, accuracy=power - depth }
     return bstate_check / (sig^depth)
   end
 
@@ -41,7 +43,7 @@ local function getWeightOf(s, depth)
     end
   end
 
-  weights[state_key] = weight
+  weights[state_key] = { value=weight, accuracy=power - depth }
   return weight / (sig^depth)
 end
 
