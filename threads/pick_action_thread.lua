@@ -1,18 +1,12 @@
 require "threads/utils"
 
 -- thread inputs
-local state, weights, checks, power = ...
+local state, weights, checks, power, threads_num = ...
 
-local threads = {
-  love.thread.newThread("threads/get_weight_thread.lua"),
-  love.thread.newThread("threads/get_weight_thread.lua"),
-  love.thread.newThread("threads/get_weight_thread.lua"),
-  love.thread.newThread("threads/get_weight_thread.lua"),
-  love.thread.newThread("threads/get_weight_thread.lua"),
-  love.thread.newThread("threads/get_weight_thread.lua"),
-  love.thread.newThread("threads/get_weight_thread.lua"),
-  love.thread.newThread("threads/get_weight_thread.lua"),
-}
+local threads = { }
+for i = 1, tonumber(threads_num), 1 do
+  threads[i] = love.thread.newThread("threads/get_weight_thread.lua")
+end
 
 local function selectThread()
   for _, thread in ipairs(threads) do
@@ -42,14 +36,16 @@ for i, s in ipairs(rstates) do
   -- update weights tables to enhance performance
   local weights_table = love.thread.getChannel("weights"):pop()
   while weights_table do
-    setmetatable(weights_table, weights)
+    local mt = { __index=weights }
+    setmetatable(weights_table, mt)
     weights = weights_table
     weights_table = love.thread.getChannel("weights"):pop()
   end
   -- update checks tables to enhance performance
   local checks_table = love.thread.getChannel("checks"):pop()
   while checks_table do
-    setmetatable(checks_table, checks)
+    local mt = { __index=checks }
+    setmetatable(checks_table, mt)
     checks = checks_table
     checks_table = love.thread.getChannel("checks"):pop()
   end

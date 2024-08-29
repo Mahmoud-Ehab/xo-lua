@@ -8,7 +8,9 @@ function Screen:new ()
 end
 
 function Screen:mousereleased (x, y, button)
-  for _, v in pairs(self.components) do if v.load then v:mousereleased(x, y, button) end end
+  for _, v in pairs(self.components) do
+    if v.mousereleased then v:mousereleased(x, y, button) end
+  end
 end
 
 function Screen:load ()

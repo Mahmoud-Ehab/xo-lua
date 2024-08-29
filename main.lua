@@ -1,46 +1,28 @@
 love = love
 
 require "GameManager"
-require "drawables/StateView"
-require "drawables/TextView"
-require "drawables/Screen"
 
-local game = GameManager:new(7)
-local screen = Screen:new()
+_G["_n"] = 3
+_G["_power"] = 3
+_G["_threads"] = 8
+
+Game = GameManager:new()
 
 function love.load()
   love.window.setMode(480, 600)
   love.window.setTitle("xo-lua")
-
-  -- Add game board to the screen
-  screen:addComponent("state_view", StateView:new(game.State.cur))
-
-  -- Add text view at the bottom that tells the status of the game
-  local StatusTextView = TextView:new(love.graphics.getWidth()/2, love.graphics.getHeight() - 50, 24, "center")
-  screen:addComponent("status_text_view", StatusTextView)
-
-  screen:load()
+  Game:setScreen(Game.SCREENS.mainmenu)
+  Game.screen:load()
 end
 
-local w = 0 -- winner code
 function love.update()
-  screen:update()
-  screen:getComponent("status_text_view").value = _G["status"]
-  if w ~= 0 then
-    local winner = w == 1 and "X" or "O"
-    _G["status"] = "Gameover: " .. winner .. " won."
-  elseif game.State:isOver() then
-    _G["status"] = "Gameover: it's draw."
-  else
-    game:update()
-    w = game.State:getWinner()
-  end
+  Game.screen:update()
 end
 
 function love.mousereleased(x, y, button)
-  screen:mousereleased(x, y, button)
+  Game.screen:mousereleased(x, y, button)
 end
 
 function love.draw()
-  screen:draw()
+  Game.screen:draw()
 end

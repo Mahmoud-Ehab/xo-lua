@@ -2,33 +2,54 @@ _G["checks"] = {} -- needs to be initialized before importing GameState
 require "GameState"
 require "Player"
 require "AiAgent"
+require "screens.MainScreen"
+require "screens.LevelScreen"
 
 GameManager = {}
-local playerInTurn
 
-function GameManager:new (n)
-  local o = {}
-  o.State = GameState:new(n or 3)
+function GameManager:new ()
+  local o = { SCREENS={} }
+  o.State = GameState:new(_G["_n"])
   o.Players = {
     Player:new("X player turn."),
-    AiAgent:new("AI thinking...", 3)
+    AiAgent:new("AI thinking...", _G["_power"])
   }
-  playerInTurn = o.Players[1]
+  self.playerInTurn = o.Players[1]
   self.__index = self
   setmetatable(o, self)
+
+  o:addScreen("mainmenu", MainScreen)
+  o:addScreen("playground", LevelScreen)
+
   return o
 end
 
-function GameManager:reset (n)
-  self.State = GameState:new(n)
-  playerInTurn = self.Players[1]
+function GameManager:addScreen(key, screen)
+  self.SCREENS[key] = screen
+end
+
+function GameManager:setScreen(screen)
+  self.screen = screen:new()
+  self.screen:load()
+end
+
+function GameManager:reset ()
+  self.State = GameState:new(_G["_n"])
+  self:addScreen("mainmenu", MainScreen)
+  self:addScreen("playground", LevelScreen)
+  self.playerInTurn = self.Players[1]
   _G["status"] = nil
   _G["status_changed"] = nil
+  collectgarbage()
+end
+
+function GameManager:getState()
+  return self.State.cur
 end
 
 function GameManager:update ()
-  _G["status"] = playerInTurn.getName()
-  self:action(playerInTurn)
+  _G["status"] = self.playerInTurn.getName()
+  self:action(self.playerInTurn)
 end
 
 function GameManager:action (player)
@@ -47,7 +68,7 @@ function GameManager:action (player)
 
   self.State:updateSlot(row, col, string.find(player.getName(), "X") and 1 or -1)
   for _, v in ipairs(self.Players) do
-    if v ~= playerInTurn then playerInTurn = v; break end
+    if v ~= self.playerInTurn then self.playerInTurn = v; break end
   end
   _G["state_changed"] = true -- to inform changes to GameState:getWinner method
   return true

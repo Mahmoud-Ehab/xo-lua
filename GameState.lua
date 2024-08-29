@@ -13,6 +13,8 @@ function GameState:new (n)
   end
   o.cur.key = string.format("(%d)0", n^2)
   self.__index = self
+  self.checked = _G["checks"]
+  assert(self.checked)
   setmetatable(o, self)
   return o
 end
@@ -52,18 +54,16 @@ local memo_winner = 0
 function GameState:getWinner ()
   if memo_winner ~= 0 then return memo_winner end
   if not _G["state_changed"] then return 0 end
-  local winner = self.check(self.cur)
+  local winner = self:check(self.cur)
   if winner == 0 then _G["state_changed"] = false end -- to save computations for next (love.update) loops
   return winner
 end
 
 -- checks the state and returns 1, -1, or 0 if X wins, O wins, or noone.
-local checked = _G["checks"]
-assert(checked)
-function GameState.check (state)
-  checked = _G["checks"] -- update checked table
+function GameState:check (state)
+  self.checked = _G["checks"] -- update checked table
   local state_key = state.key
-  if checked[state_key] then return checked[state_key] end
+  if self.checked[state_key] then return self.checked[state_key] end
 
   local n = #state
   local w = n > 4 and 4 or n -- winning threshold value
@@ -74,7 +74,7 @@ function GameState.check (state)
       local absDiff = math.abs(rowSum + row[i]) - math.abs(rowSum)
       rowSum = absDiff < 1 and row[i] or rowSum + row[i]
       if (rowSum == w or rowSum == -w ) then
-        checked[state_key] = rowSum/w
+        self.checked[state_key] = rowSum/w
         return rowSum/w
       end
     end
@@ -83,7 +83,7 @@ function GameState.check (state)
       local absDiff = math.abs(colSum + state[i][row_index]) - math.abs(colSum)
       colSum = absDiff < 1 and state[i][row_index] or colSum + state[i][row_index]
       if (colSum == w or colSum == -w) then
-        checked[state_key] = colSum/w
+        self.checked[state_key] = colSum/w
         return colSum/w
       end
     end
@@ -98,14 +98,14 @@ function GameState.check (state)
       local absDiff = math.abs(topDiagSum + state[i+k-1][k]) - math.abs(topDiagSum)
       topDiagSum = absDiff < 1 and state[i+k-1][k] or topDiagSum + state[i+k-1][k]
       if (topDiagSum == w or topDiagSum == -w) then
-        checked[state_key] = topDiagSum/w
+        self.checked[state_key] = topDiagSum/w
         return topDiagSum/w
       end
       -- check bottom diagonals
       absDiff = math.abs(botDiagSum + state[k][i+k-1]) - math.abs(botDiagSum)
       botDiagSum = absDiff < 1 and state[k][i+k-1] or botDiagSum + state[k][i+k-1]
       if (botDiagSum == w or botDiagSum == -w) then
-        checked[state_key] = botDiagSum/w
+        self.checked[state_key] = botDiagSum/w
         return botDiagSum/w
       end
     end
@@ -120,7 +120,7 @@ function GameState.check (state)
       local absDiff = math.abs(botDiagSum + state[i+k-1][n-k+1]) - math.abs(botDiagSum)
       botDiagSum = absDiff < 1 and state[i+k-1][n-k+1] or botDiagSum + state[i+k-1][n-k+1]
       if (botDiagSum == w or botDiagSum == -w) then
-        checked[state_key] = botDiagSum/w
+        self.checked[state_key] = botDiagSum/w
         return botDiagSum/w
       end
       if i == 1 then goto continue end
@@ -128,7 +128,7 @@ function GameState.check (state)
       absDiff = math.abs(topDiagSum + state[k][n-k-i+2]) - math.abs(topDiagSum)
       topDiagSum = absDiff < 1 and state[k][n-k-i+2] or topDiagSum + state[k][n-k-i+2]
       if (topDiagSum == w or topDiagSum == -w) then
-        checked[state_key] = topDiagSum/w
+        self.checked[state_key] = topDiagSum/w
         return topDiagSum/w
       end
       ::continue::
@@ -136,7 +136,7 @@ function GameState.check (state)
   end
 
   -- otherwise return 0 indicating that no winners yet
-  checked[state_key] = 0
+  self.checked[state_key] = 0
   return 0
 end
 
@@ -160,4 +160,4 @@ function GameState.genKey(state)
   return key
 end
 
-CheckState = GameState.check
+CheckState = function(state) return GameState:check(state) end

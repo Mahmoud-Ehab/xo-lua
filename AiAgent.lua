@@ -14,7 +14,6 @@ require "Player"
 -- each state represented (as a key) by a string of its slots values
 -- for example: "(9)0" represents the state of empty 3*3 board matrix
 -- it highly enhances performance
-local weights = {}
 
 AiAgent = {}
 
@@ -22,6 +21,7 @@ function AiAgent:new(name, power)
   local o = Player:new(name)
   o.power = power or 10
   self.__index = self
+  self.weights = {}
   setmetatable(o, self)
   return o
 end
@@ -30,12 +30,12 @@ local pick_thread = love.thread.newThread("threads/pick_action_thread.lua")
 local started = false
 function AiAgent:chooseSlot(GameState)
   if not started then
-    pick_thread:start(GameState.cur, weights, _G["checks"], self.power)
+    pick_thread:start(GameState.cur, self.weights, _G["checks"], _G["_power"], _G["_threads"])
     started = true
   end
   local picked_action = love.thread.getChannel("picked_action"):pop()
   if picked_action then
-    weights = love.thread.getChannel("weights"):demand()
+    self.weights = love.thread.getChannel("weights"):demand()
     _G["checks"] = love.thread.getChannel("checks"):demand()
     started = false
     return picked_action
